@@ -98,11 +98,4 @@ public class CombatControl : MonoBehaviour
             }
         }
     }
-    private void OnMouseEnter()
-    {
-        if (gameObject.tag == "Ant")
-        {
-            Debug.Log("Clicked");
-        }
-    }
 }

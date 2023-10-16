@@ -16,18 +16,22 @@ public class Ant : MonoBehaviour
 
     private Vector3 enemyPosition;
     private Vector3 resourceDirecion;
+    private Vector3 mouseDirection;
 
     private GameObject enemyobject;
     public GameObject[] resourceObject;
     private SphereCollider antView;
+    private Camera mainCamera;
 
     public bool isSafe;
     public bool isIdle;
     public bool withResource;
+    public bool isControlled;
     
     //Assigns all values and runs the resource tracking method
     void Start()
     {
+        mainCamera = Camera.current;
         enemyobject = gameObject;
         antView = GetComponent<SphereCollider>();
         antView.radius = range;
@@ -35,12 +39,17 @@ public class Ant : MonoBehaviour
         isSafe = true;
         isIdle = true;
         withResource = false;
+        isControlled = false;
     }
 
     // runs the GoGather method which handles most of the ant's movements
     void Update()
     {
         GoGather();
+        if (isControlled)
+        {
+            ControlledMovement();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -68,6 +77,18 @@ public class Ant : MonoBehaviour
             ResourceTracking();
         }
     }
+    private void OnMouseDown()
+    {
+        Debug.Log("Clicked");
+        if (isControlled)
+        {
+            isControlled=false;
+        }
+        else
+        {
+            isControlled = true;
+        }
+    }
     public void Escape()
     {
         isSafe = false;
@@ -83,13 +104,24 @@ public class Ant : MonoBehaviour
             resourceDirecion = resourceObject[pileIndex].transform.position - transform.position;
         }
     }
+    public void ControlledMovement()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 mouseWorldPos = new Vector3(mousePos.x, transform.position.y, mousePos.z);
+            mouseDirection = mouseWorldPos - transform.position;
+
+        }
+        transform.Translate(mouseDirection.normalized * speed * Time.deltaTime);
+    }
     public virtual void Idle()
     {
 
     }
     public void GoGather()
     {
-        if (isSafe && resourceObject.Length != 0 && isIdle)
+        if (isSafe && resourceObject.Length != 0 && isIdle && !isControlled)
         {
             if (resourceObject[pileIndex] != null)
             {
@@ -100,12 +132,12 @@ public class Ant : MonoBehaviour
                 ResourceTracking();
             }
         }
-        else if (withResource && isSafe && !isIdle)
+        else if (withResource && isSafe && !isIdle && !isControlled)
         {
             Vector3 baseDirection = GameObject.Find("Base").transform.position - transform.position;
             transform.Translate(baseDirection.normalized * speed * Time.deltaTime);
         }
-        else if (isSafe && isIdle && resourceObject.Length == 0)
+        else if (isSafe && isIdle && resourceObject.Length == 0 && !isControlled)
         {
             Vector3 baseDirection = GameObject.Find("Base").transform.position - transform.position;
             transform.Translate(baseDirection.normalized * speed * Time.deltaTime);
