@@ -17,11 +17,11 @@ public class Ant : MonoBehaviour
     private Vector3 enemyPosition;
     private Vector3 resourceDirecion;
     private Vector3 mouseDirection;
+    private Vector3 mouseWorldPos;
 
     private GameObject enemyobject;
     public GameObject[] resourceObject;
     private SphereCollider antView;
-    private Camera mainCamera;
 
     public bool isSafe;
     public bool isIdle;
@@ -31,7 +31,6 @@ public class Ant : MonoBehaviour
     //Assigns all values and runs the resource tracking method
     void Start()
     {
-        mainCamera = Camera.current;
         enemyobject = gameObject;
         antView = GetComponent<SphereCollider>();
         antView.radius = range;
@@ -41,15 +40,11 @@ public class Ant : MonoBehaviour
         withResource = false;
         isControlled = false;
     }
-
     // runs the GoGather method which handles most of the ant's movements
     void Update()
     {
         GoGather();
-        if (isControlled)
-        {
-            ControlledMovement();
-        }
+       // ControlledMovement();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -79,7 +74,6 @@ public class Ant : MonoBehaviour
     }
     private void OnMouseDown()
     {
-        Debug.Log("Clicked");
         if (isControlled)
         {
             isControlled=false;
@@ -89,12 +83,43 @@ public class Ant : MonoBehaviour
             isControlled = true;
         }
     }
+
+    private Vector3 MouseWorldPosition()
+    {
+        Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        Physics.Raycast(mouseRay, out RaycastHit rayCastHit);
+        Vector3 mousePos = rayCastHit.point;
+        mouseWorldPos = new Vector3(mousePos.x, transform.position.y, mousePos.z);
+        mouseDirection = mouseWorldPos - transform.position;
+        return mouseDirection;
+    }
+    public void ControlledMovement()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            MouseWorldPosition();
+            StartCoroutine(PositionChecker());
+        }
+    }
+    IEnumerator PositionChecker()
+    {
+        while (Vector3.Distance(transform.position, mouseWorldPos) > 0.05f)
+        {
+            transform.Translate(mouseDirection.normalized * speed * Time.deltaTime);
+            yield return null;
+        }
+        isControlled = false;
+        ResourceTracking();
+        yield return null;
+    }
+
     public void Escape()
     {
         isSafe = false;
         Vector3 directionVector = gameObject.transform.position-enemyPosition;
         transform.Translate(directionVector.normalized * speed * Time.deltaTime);
     }
+
     public void ResourceTracking()
     {
         resourceObject = GameObject.FindGameObjectsWithTag("Resource");
@@ -103,21 +128,6 @@ public class Ant : MonoBehaviour
             pileIndex = Random.Range(0, resourceObject.Length);
             resourceDirecion = resourceObject[pileIndex].transform.position - transform.position;
         }
-    }
-    public void ControlledMovement()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Vector3 mousePos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            Vector3 mouseWorldPos = new Vector3(mousePos.x, transform.position.y, mousePos.z);
-            mouseDirection = mouseWorldPos - transform.position;
-
-        }
-        transform.Translate(mouseDirection.normalized * speed * Time.deltaTime);
-    }
-    public virtual void Idle()
-    {
-
     }
     public void GoGather()
     {
@@ -143,5 +153,8 @@ public class Ant : MonoBehaviour
             transform.Translate(baseDirection.normalized * speed * Time.deltaTime);
         }
     }
+    public virtual void Idle()
+    {
 
+    }
 }

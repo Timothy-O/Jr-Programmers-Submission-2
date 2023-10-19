@@ -22,5 +22,9 @@ public class QueenAnt : Ant
         {
             GoGather();
         }
+        if (isControlled)
+        {
+            ControlledMovement();
+        }
     }
 }
