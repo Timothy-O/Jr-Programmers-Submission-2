@@ -44,7 +44,7 @@ public class Ant : MonoBehaviour
     void Update()
     {
         GoGather();
-       // ControlledMovement();
+        ControlledMovement();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -98,10 +98,10 @@ public class Ant : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             MouseWorldPosition();
-            StartCoroutine(PositionChecker());
+            StartCoroutine(MovementController());
         }
     }
-    IEnumerator PositionChecker()
+    IEnumerator MovementController()
     {
         while (Vector3.Distance(transform.position, mouseWorldPos) > 0.05f)
         {

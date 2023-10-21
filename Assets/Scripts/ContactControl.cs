@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CombatControl : MonoBehaviour
+public class ContactControl : MonoBehaviour
 {
     //reource variable will only be applicable to enemies, entity is the parent game object;
     public float health;
@@ -31,7 +31,7 @@ public class CombatControl : MonoBehaviour
         {
             if (collision.gameObject.tag == "Ant")
             {
-                health -= collision.gameObject.GetComponent<CombatControl>().damage;
+                health -= collision.gameObject.GetComponent<ContactControl>().damage;
                 GetComponentInParent<Enemy>().isAttacking = false;
                 GetComponentInParent<Enemy>().RandomDirection();
                 if (health < 0)
@@ -44,7 +44,7 @@ public class CombatControl : MonoBehaviour
         {
             if (collision.gameObject.tag == "Enemy")
             {
-                health -= collision.gameObject.GetComponent<CombatControl>().damage;
+                health -= collision.gameObject.GetComponent<ContactControl>().damage;
                 if (health < 0)
                 {
                     Destroy(entity);
@@ -77,7 +77,7 @@ public class CombatControl : MonoBehaviour
         {
             if (collision.gameObject.tag == "Ant")
             {
-                health -= collision.gameObject.GetComponent<CombatControl>().damage;
+                health -= collision.gameObject.GetComponent<ContactControl>().damage;
                 GetComponentInParent<Enemy>().isAttacking = false;
                 GetComponentInParent<Enemy>().RandomDirection();
                 if (health < 0)
@@ -90,7 +90,7 @@ public class CombatControl : MonoBehaviour
         {
             if (collision.gameObject.tag == "Enemy")
             {
-                health -= collision.gameObject.GetComponent<CombatControl>().damage;
+                health -= collision.gameObject.GetComponent<ContactControl>().damage;
                 if (health < 0)
                 {
                     Destroy(entity);

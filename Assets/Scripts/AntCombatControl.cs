@@ -26,7 +26,7 @@ public class AntCombatControl : MonoBehaviour
             Debug.Log("Collision");
             Debug.Log("Defend!");
             Debug.Log("Contact");
-            health -= collision.gameObject.GetComponent<CombatControl>().damage;
+            health -= collision.gameObject.GetComponent<ContactControl>().damage;
             if (health < 0)
             {
                 Destroy(gameObject);
