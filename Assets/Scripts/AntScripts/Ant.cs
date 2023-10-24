@@ -11,32 +11,38 @@ public class Ant : MonoBehaviour
     // antView is the sphere collider that detects enemys; isSafe activitaes while ant is not escaping
     //withResources activates after ant collide with resource piles
     public float speed;
-    private int range = 3;
+    [SerializeField]private int range = 3;
     private int pileIndex;
 
-    private Vector3 enemyPosition;
-    private Vector3 resourceDirecion;
     private Vector3 mouseDirection;
     private Vector3 mouseWorldPos;
 
     private GameObject enemyobject;
     public GameObject[] resourceObject;
+    public GameObject activePile;
+    protected GameObject antBase;
     private SphereCollider antView;
+    protected SphereCollider basePerimeter;
 
     public bool isSafe;
     public bool isIdle;
+    public bool isAttackType;
+    public bool isGathering;
     public bool withResource;
     public bool isControlled;
     
     //Assigns all values and runs the resource tracking method
     void Start()
     {
+        antBase = GameObject.Find("Base");
         enemyobject = gameObject;
         antView = GetComponent<SphereCollider>();
+        basePerimeter = antBase.GetComponent<SphereCollider>();
         antView.radius = range;
         ResourceTracking();
         isSafe = true;
         isIdle = true;
+        isAttackType = false;
         withResource = false;
         isControlled = false;
     }
@@ -44,7 +50,7 @@ public class Ant : MonoBehaviour
     void Update()
     {
         GoGather();
-        ControlledMovement();
+        ControlledState();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -59,8 +65,7 @@ public class Ant : MonoBehaviour
         if (other.tag == "Enemy")
         {
             enemyobject = other.gameObject;
-            enemyPosition = enemyobject.transform.position;
-            Escape();
+            ConflictState();
         }
     }
     private void OnTriggerExit(Collider other)
@@ -93,15 +98,15 @@ public class Ant : MonoBehaviour
         mouseDirection = mouseWorldPos - transform.position;
         return mouseDirection;
     }
-    public void ControlledMovement()
+    public void ControlledState()
     {
         if (Input.GetMouseButtonDown(1))
         {
             MouseWorldPosition();
-            StartCoroutine(MovementController());
+            StartCoroutine(ControlledMovement());
         }
     }
-    IEnumerator MovementController()
+    IEnumerator ControlledMovement()
     {
         while (Vector3.Distance(transform.position, mouseWorldPos) > 0.05f)
         {
@@ -113,11 +118,17 @@ public class Ant : MonoBehaviour
         yield return null;
     }
 
-    public void Escape()
+    public virtual void ConflictState()
     {
         isSafe = false;
-        Vector3 directionVector = gameObject.transform.position-enemyPosition;
-        transform.Translate(directionVector.normalized * speed * Time.deltaTime);
+        if (isAttackType)
+        {
+            MoveTo(enemyobject);
+        }
+        else
+        {
+            MoveAway(enemyobject);
+        }
     }
 
     public void ResourceTracking()
@@ -126,16 +137,17 @@ public class Ant : MonoBehaviour
         if (resourceObject.Length != 0)
         {
             pileIndex = Random.Range(0, resourceObject.Length);
-            resourceDirecion = resourceObject[pileIndex].transform.position - transform.position;
+            activePile = resourceObject[pileIndex];
         }
     }
     public void GoGather()
     {
+        isGathering = true;
         if (isSafe && resourceObject.Length != 0 && isIdle && !isControlled)
         {
             if (resourceObject[pileIndex] != null)
             {
-                transform.Translate(resourceDirecion.normalized * speed * Time.deltaTime);
+                MoveTo(activePile);
             }
             else
             {
@@ -144,17 +156,38 @@ public class Ant : MonoBehaviour
         }
         else if (withResource && isSafe && !isIdle && !isControlled)
         {
-            Vector3 baseDirection = GameObject.Find("Base").transform.position - transform.position;
-            transform.Translate(baseDirection.normalized * speed * Time.deltaTime);
+            MoveTo(antBase);
         }
         else if (isSafe && isIdle && resourceObject.Length == 0 && !isControlled)
         {
-            Vector3 baseDirection = GameObject.Find("Base").transform.position - transform.position;
-            transform.Translate(baseDirection.normalized * speed * Time.deltaTime);
+            if( Vector3.Distance(transform.position, antBase.transform.position) > basePerimeter.radius)
+            {
+                MoveTo(antBase);
+            }
         }
     }
+
     public virtual void Idle()
     {
 
+    }
+    public void AttackTarget(GameObject enemy)
+    {
+        MoveTo(enemy);
+    }
+    public void MoveTo(GameObject target)
+    {
+        Vector3 directionVector = target.transform.position - transform.position;
+        transform.Translate(directionVector.normalized * speed * Time.deltaTime);
+    }
+    public void MoveTo(Vector3 target)
+    {
+        Vector3 directionVector = target - transform.position;
+        transform.Translate(directionVector.normalized * speed * Time.deltaTime);
+    }
+    public void MoveAway(GameObject target)
+    {
+        Vector3 directionVector = transform.position- target.transform.position;
+        transform.Translate(directionVector.normalized * speed * Time.deltaTime);
     }
 }

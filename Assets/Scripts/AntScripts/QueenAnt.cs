@@ -8,6 +8,8 @@ public class QueenAnt : Ant
     // Start is called before the first frame update
     void Start()
     {
+        antBase = GameObject.Find("Base");
+        basePerimeter = antBase.GetComponent<SphereCollider>();
         antChildren = GameObject.FindGameObjectsWithTag("Ant");
         ResourceTracking();
         isSafe = true;
@@ -18,12 +20,13 @@ public class QueenAnt : Ant
     // Update is called once per frame
     void Update()
     {
+        antChildren = GameObject.FindGameObjectsWithTag("Ant");
         if (antChildren.Length < 2)
         {
             GoGather();
             if (isControlled)
             {
-                ControlledMovement();
+                ControlledState();
             }
         }
         else
@@ -33,11 +36,9 @@ public class QueenAnt : Ant
     }
     private void BackToNest()
     {
-        Vector3 baseLocation = GameObject.Find("Base").transform.position;
-        Vector3 baseDirection = baseLocation - transform.position;
-        if (Vector3.Distance(transform.position, baseLocation) > 0.05f)
+        if (Vector3.Distance(transform.position, antBase.transform.position) > 0.05f && isSafe)
         {
-            transform.Translate(baseDirection.normalized * speed * Time.deltaTime);
+            MoveTo(antBase);
         }
     }
     private void OnMouseUp()

@@ -50,14 +50,14 @@ public class ContactControl : MonoBehaviour
                     Destroy(entity);
                 }
             }
-            else if (collision.gameObject.tag == "Resource" && GetComponentInParent<Ant>().isSafe)
+            else if (collision.gameObject.tag == "Resource" && GetComponentInParent<Ant>().isSafe && GetComponentInParent<Ant>().isGathering)
             {
                 Destroy(collision.gameObject);
                 GetComponentInParent<Ant>().withResource = true;
                 GetComponentInParent<Ant>().isIdle = false;
                 
             }
-            else if (collision.gameObject.name == "Base" && GetComponentInParent<Ant>().isSafe)
+            else if (collision.gameObject.name == "Base" && GetComponentInParent<Ant>().isSafe && GetComponentInParent<Ant>().isGathering)
             {
                 GetComponentInParent<Ant>().ResourceTracking();
                 if (GetComponentInParent<Ant>().resourceObject.Length == 0)
