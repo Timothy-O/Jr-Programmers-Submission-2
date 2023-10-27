@@ -38,7 +38,7 @@ public class Soldier : Ant
     {
         float xPos = Random.Range(-10, 10);
         float zPos = Random.Range(-10, 10);
-        randomPos = new Vector3(xPos, transform.position.y, zPos);
+        randomPos = new Vector3(xPos, 0.5f, zPos);
         return randomPos;
     }
 

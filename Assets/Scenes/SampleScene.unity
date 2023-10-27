@@ -574,7 +574,7 @@ GameObject:
   - component: {fileID: 232465095}
   - component: {fileID: 232465094}
   m_Layer: 5
-  m_Name: Text (TMP) (2)
+  m_Name: EnemyCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1073,12 +1073,12 @@ GameObject:
   - component: {fileID: 360477688}
   - component: {fileID: 360477687}
   m_Layer: 5
-  m_Name: Text (TMP) (3)
+  m_Name: WeatherCondition
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &360477686
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1636,7 +1636,7 @@ GameObject:
   - component: {fileID: 470501339}
   - component: {fileID: 470501338}
   m_Layer: 5
-  m_Name: Text (TMP) (1)
+  m_Name: UnitCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2649,7 +2649,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1055836899
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3597,7 +3597,7 @@ GameObject:
   - component: {fileID: 1417291620}
   - component: {fileID: 1417291619}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: ResourceCount
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4670,6 +4670,7 @@ GameObject:
   - component: {fileID: 2145184869}
   - component: {fileID: 2145184868}
   - component: {fileID: 2145184867}
+  - component: {fileID: 2145184871}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -4763,3 +4764,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &2145184871
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2145184866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d589a976c23e06b40826970031d8e664, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  resourceCount: {fileID: 1417291619}
+  unitCount: {fileID: 470501338}
+  enemyCount: {fileID: 232465094}
