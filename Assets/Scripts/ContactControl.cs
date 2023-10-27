@@ -33,7 +33,7 @@ public class ContactControl : MonoBehaviour
             {
                 health -= collision.gameObject.GetComponent<ContactControl>().damage;
                 GetComponentInParent<Enemy>().isAttacking = false;
-                GetComponentInParent<Enemy>().RandomDirection();
+                GetComponentInParent<Enemy>().RandomPos();
                 if (health < 0)
                 {
                     Destroy(entity);
@@ -79,7 +79,7 @@ public class ContactControl : MonoBehaviour
             {
                 health -= collision.gameObject.GetComponent<ContactControl>().damage;
                 GetComponentInParent<Enemy>().isAttacking = false;
-                GetComponentInParent<Enemy>().RandomDirection();
+                GetComponentInParent<Enemy>().RandomPos();
                 if (health < 0)
                 {
                     Destroy(entity);

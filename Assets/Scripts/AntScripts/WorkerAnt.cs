@@ -8,7 +8,9 @@ public class WorkerAnt : Ant
     void Start()
     {
         antBase = GameObject.Find("Base");
+        antView = GetComponent<SphereCollider>();
         basePerimeter = antBase.GetComponent<SphereCollider>();
+        antView.radius = range;
         ResourceTracking();
         isSafe = true;
         isIdle = true;
@@ -20,7 +22,10 @@ public class WorkerAnt : Ant
     // Update is called once per frame
     void Update()
     {
-        GoGather();
-        ControlledState();
+        GoGather(activePile);
+        if (isControlled)
+        {
+            ControlledState();
+        }
     }
 }

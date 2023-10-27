@@ -10,11 +10,15 @@ public class QueenAnt : Ant
     {
         antBase = GameObject.Find("Base");
         basePerimeter = antBase.GetComponent<SphereCollider>();
+        antView = GetComponent<SphereCollider>();
+        antView.radius = range;
         antChildren = GameObject.FindGameObjectsWithTag("Ant");
-        ResourceTracking();
         isSafe = true;
         isIdle = true;
+        isAttackType = false;
+        isControlled = false;
         withResource = false;
+        ResourceTracking();
     }
 
     // Update is called once per frame
@@ -23,7 +27,7 @@ public class QueenAnt : Ant
         antChildren = GameObject.FindGameObjectsWithTag("Ant");
         if (antChildren.Length < 2)
         {
-            GoGather();
+            GoGather(activePile);
             if (isControlled)
             {
                 ControlledState();
@@ -40,9 +44,5 @@ public class QueenAnt : Ant
         {
             MoveTo(antBase);
         }
-    }
-    private void OnMouseUp()
-    {
-        
     }
 }

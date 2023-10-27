@@ -10,10 +10,16 @@ public class Soldier : Ant
     // Start is called before the first frame update
     void Start()
     {
-        isIdle = true;
+        antBase = GameObject.Find("Base");
+        antView = GetComponent<SphereCollider>();
+        basePerimeter = antBase.GetComponent<SphereCollider>();
+        antView.radius = range;
+        ResourceTracking();
         isSafe = true;
+        isIdle = true;
         isAttackType = true;
-        RandomPos();
+        withResource = false;
+        isControlled = false;
     }
 
     // Update is called once per frame
@@ -22,6 +28,10 @@ public class Soldier : Ant
         if (!isControlled)
         {
             IdleMovement();
+        }
+        else if (isControlled)
+        {
+            ControlledState();
         }
     }
     public Vector3 RandomPos()
@@ -37,24 +47,19 @@ public class Soldier : Ant
         if (isSafe && isIdle)
         {
             idleTime -= Time.deltaTime;
-            if (idleTime < 0)
-            {
-                //isIdle = false;
-                MoveTo(randomPos);
-                movementTime -= Time.deltaTime;
-                if (movementTime < 0)
-                {
-                    isIdle = false;
-                }
-            }
+            movementTime = 5;
         }
-        else if (!isIdle && isSafe)
+        if (idleTime < 0 && isSafe)
+        {
+            isIdle = false;
+            MoveTo(randomPos);
+            movementTime -= Time.deltaTime;
+        }
+        if (movementTime < 0 && isSafe)
         {
             idleTime = 10;
             isIdle = true;
-            movementTime = 5;
             RandomPos();
         }
     }
-
 }

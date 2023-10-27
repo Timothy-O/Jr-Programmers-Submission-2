@@ -5,23 +5,25 @@ using UnityEngine;
 public class Ant : MonoBehaviour
 {
     //speed is the objects speend during translation; range is the radius of the sphere colider that detects enemys
-    //pileIndex is the random index for the resourceObject; enemyPosition is the detected enemy's position
-    //resourceDirection is the vector 3 direction towards a random resource pile
+    //pileIndex is the random index for the resourceObject; allEnemys is an array of all enemies in scene
     //enemyObject is the detected enemy oject; resourceobjects is an array of all resources in the scene
-    // antView is the sphere collider that detects enemys; isSafe activitaes while ant is not escaping
-    //withResources activates after ant collide with resource piles
+    //mouseWorldPos is the position over which the mouse is clicked at the gameObjects heigth
+    //activePile is the random resource pile selected from the resourceObjects array
+    //antBase is the base gameobject where resources are taken; base perimeter is the sphere colider attached to the base
+    // antView is the sphere collider that detects enemys; isSafe activitaes while ant is not being chased;
+    //withResources activates after ant collide with a resource pile, isIdle is active when an ant isn't doing work
+    //isGathering is active when an ant is gathering, isControlled is activated when ant is clicked and deactivates when command is completed
+    //isAttackType distinguishes between ant that should attack and those that should'nt
     public float speed;
-    [SerializeField]private int range = 3;
+    public int range;
     private int pileIndex;
 
-    private Vector3 mouseDirection;
-    private Vector3 mouseWorldPos;
-
     private GameObject enemyobject;
+    private GameObject[] allEnemys;
     public GameObject[] resourceObject;
     public GameObject activePile;
     protected GameObject antBase;
-    private SphereCollider antView;
+    protected SphereCollider antView;
     protected SphereCollider basePerimeter;
 
     public bool isSafe;
@@ -31,11 +33,10 @@ public class Ant : MonoBehaviour
     public bool withResource;
     public bool isControlled;
     
-    //Assigns all values and runs the resource tracking method
     void Start()
     {
+        //Assigns all values and runs the resource tracking method
         antBase = GameObject.Find("Base");
-        enemyobject = gameObject;
         antView = GetComponent<SphereCollider>();
         basePerimeter = antBase.GetComponent<SphereCollider>();
         antView.radius = range;
@@ -46,30 +47,36 @@ public class Ant : MonoBehaviour
         withResource = false;
         isControlled = false;
     }
-    // runs the GoGather method which handles most of the ant's movements
     void Update()
     {
-        GoGather();
-        ControlledState();
+        // runs the GoGather method and checks if the ant is controlled
+        GoGather(activePile);
+        if (isControlled)
+        {
+            ControlledState();
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        // Checks if an enemy is within range and deactivates the isSafe bool
         if(other.tag == "Enemy")
         {
-            //Debug.Log("Predator");
+            isSafe = false;
         }
     }
     private void OnTriggerStay(Collider other)
     {
+        //detects the enemy position every frame and moves accordingly
         if (other.tag == "Enemy")
         {
             enemyobject = other.gameObject;
-            ConflictState();
+            ConflictState(enemyobject);
         }
     }
     private void OnTriggerExit(Collider other)
     {
+        // checks if enemy is no longer in range
         if(other.tag == "Enemy")
         {
             enemyobject = gameObject;
@@ -79,6 +86,7 @@ public class Ant : MonoBehaviour
     }
     private void OnMouseDown()
     {
+        //Checks when object is clicked to be controlled
         if (isControlled)
         {
             isControlled=false;
@@ -88,51 +96,90 @@ public class Ant : MonoBehaviour
             isControlled = true;
         }
     }
-
-    private Vector3 MouseWorldPosition()
+    private void OnDestroy()
     {
-        Ray mouseRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-        Physics.Raycast(mouseRay, out RaycastHit rayCastHit);
-        Vector3 mousePos = rayCastHit.point;
-        mouseWorldPos = new Vector3(mousePos.x, transform.position.y, mousePos.z);
-        mouseDirection = mouseWorldPos - transform.position;
-        return mouseDirection;
+        //runs when object is about to be destroyed
+        DeathAlert();
     }
+
     public void ControlledState()
     {
+        //determines what action to take when mouse is controlled and gets mouse's info when clicked
         if (Input.GetMouseButtonDown(1))
         {
-            MouseWorldPosition();
-            StartCoroutine(ControlledMovement());
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Physics.Raycast(ray, out RaycastHit hit);
+            if(hit.collider.tag == "EnemyParent")
+            {
+               StartCoroutine(ControlledAttack(hit.collider.gameObject));
+            }
+            else if (hit.collider.tag == "Resource")
+            {
+                StartCoroutine(ControlledGathering(hit.collider.gameObject));
+            }
+            else
+            {
+                Vector3 mousePos = new Vector3(hit.point.x, transform.position.y, hit.point.z);
+                StartCoroutine(ControlledMovement(mousePos));
+            }
         }
     }
-    IEnumerator ControlledMovement()
+    IEnumerator ControlledMovement(Vector3 clickPosition)
     {
-        while (Vector3.Distance(transform.position, mouseWorldPos) > 0.05f)
+        //moves ant to clickposition when called
+        while (Vector3.Distance(transform.position, clickPosition) > 0.05f)
         {
-            transform.Translate(mouseDirection.normalized * speed * Time.deltaTime);
+            MoveTo(clickPosition);
             yield return null;
         }
         isControlled = false;
         ResourceTracking();
         yield return null;
     }
-
-    public virtual void ConflictState()
+    IEnumerator ControlledAttack(GameObject enemy)
     {
-        isSafe = false;
+        //attcks the selected enemy when called
+        while(enemy!=null)
+        {
+            isAttackType = true;
+            MoveTo(enemy);
+            yield return null;
+        }
+        isControlled = false;
+        ResourceTracking();
+        yield return null;
+    }
+    IEnumerator ControlledGathering(GameObject resourcePile)
+    {
+        // goes to gather selected resource pile when called
+        while(resourcePile != null || withResource)
+        {
+            Gather(resourcePile);
+            yield return null;
+        }
+        isControlled = false;
+        ResourceTracking();
+        isGathering = false;
+        isAttackType = true;
+        yield return null;
+    }
+
+    public virtual void ConflictState(GameObject enemy)
+    {
+        //determines what happens when enemy is in range
         if (isAttackType)
         {
-            MoveTo(enemyobject);
+            MoveTo(enemy);
         }
         else
         {
-            MoveAway(enemyobject);
+            MoveAway(enemy);
         }
     }
 
     public void ResourceTracking()
     {
+        //checks for objects taged as resources and selects a random one
         resourceObject = GameObject.FindGameObjectsWithTag("Resource");
         if (resourceObject.Length != 0)
         {
@@ -140,14 +187,16 @@ public class Ant : MonoBehaviour
             activePile = resourceObject[pileIndex];
         }
     }
-    public void GoGather()
+    public void GoGather(GameObject resourcePile)
     {
+        //uncontrolled gathering of random reource piles
         isGathering = true;
+        isAttackType = false;
         if (isSafe && resourceObject.Length != 0 && isIdle && !isControlled)
         {
-            if (resourceObject[pileIndex] != null)
+            if (resourcePile != null)
             {
-                MoveTo(activePile);
+                MoveTo(resourcePile);
             }
             else
             {
@@ -166,28 +215,66 @@ public class Ant : MonoBehaviour
             }
         }
     }
+    public void Gather(GameObject resourcePile)
+    {
+        // controlled gathering of selected resource pile
+        isGathering = true;
+        isAttackType = false;
+        if (isSafe && resourceObject.Length != 0 && isIdle)
+        {
+            if (resourcePile != null)
+            {
+                MoveTo(resourcePile);
+            }
+            else
+            {
+                ResourceTracking();
+            }
+        }
+        else if (withResource && isSafe && !isIdle)
+        {
+            MoveTo(antBase);
+        }
+    }
 
     public virtual void Idle()
     {
-
+        //should run when ant is idle
     }
     public void AttackTarget(GameObject enemy)
-    {
-        MoveTo(enemy);
+    {//should attack a selected target
+        if(Vector3.Distance(transform.position, enemy.transform.position) > 0.05)
+        {
+            MoveTo(enemy);
+        }
     }
     public void MoveTo(GameObject target)
     {
+        // use to move ant towards and objects and used to reduce redundancy of translate method
         Vector3 directionVector = target.transform.position - transform.position;
         transform.Translate(directionVector.normalized * speed * Time.deltaTime);
     }
     public void MoveTo(Vector3 target)
     {
+        //moves ant to a position and reduces the redundancy of translate method
         Vector3 directionVector = target - transform.position;
         transform.Translate(directionVector.normalized * speed * Time.deltaTime);
     }
     public void MoveAway(GameObject target)
     {
+        // moves ant away from an object
         Vector3 directionVector = transform.position- target.transform.position;
         transform.Translate(directionVector.normalized * speed * Time.deltaTime);
     }
+    private void DeathAlert()
+    {
+        //returns all enemys to a state before attcking and runs when ant is about to die
+        allEnemys = GameObject.FindGameObjectsWithTag("Enemy");
+        for (int i = 0; i < allEnemys.Length; i++)
+        {
+            allEnemys[i].GetComponentInParent<Enemy>().isAttacking = false;
+            allEnemys[i].GetComponentInParent<Enemy>().RandomPos();
+        }
+    }
+
 }
