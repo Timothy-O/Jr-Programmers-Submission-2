@@ -252,19 +252,22 @@ public class Ant : MonoBehaviour
     {
         // use to move ant towards and objects and used to reduce redundancy of translate method
         Vector3 directionVector = target.transform.position - transform.position;
-        transform.Translate(directionVector.normalized * speed * Time.deltaTime);
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.rotation = Quaternion.LookRotation(directionVector);
     }
     public void MoveTo(Vector3 target)
     {
         //moves ant to a position and reduces the redundancy of translate method
         Vector3 directionVector = target - transform.position;
-        transform.Translate(directionVector.normalized * speed * Time.deltaTime);
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.rotation = Quaternion.LookRotation(directionVector);
     }
     public void MoveAway(GameObject target)
     {
         // moves ant away from an object
         Vector3 directionVector = transform.position- target.transform.position;
-        transform.Translate(directionVector.normalized * speed * Time.deltaTime);
+        transform.Translate(Vector3.forward * speed * Time.deltaTime);
+        transform.rotation = Quaternion.LookRotation(directionVector);
     }
     private void DeathAlert()
     {
