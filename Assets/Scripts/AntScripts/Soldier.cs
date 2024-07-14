@@ -35,7 +35,7 @@ public class Soldier : Ant
         }
     }
     public Vector3 RandomPos()
-    {
+    {//range shouldnt be hard coded
         float xPos = Random.Range(-10, 10);
         float zPos = Random.Range(-10, 10);
         randomPos = new Vector3(xPos, 0.5f, zPos);
@@ -43,7 +43,7 @@ public class Soldier : Ant
     }
 
     public void IdleMovement()
-    {
+    {//should look for a better way to implement method
         if (isSafe && isIdle)
         {
             idleTime -= Time.deltaTime;

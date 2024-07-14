@@ -22,7 +22,7 @@ public class WorkerAnt : Ant
     // Update is called once per frame
     void Update()
     {
-        GoGather(activePile);
+        Gather(activePile);
         if (isControlled)
         {
             ControlledState();

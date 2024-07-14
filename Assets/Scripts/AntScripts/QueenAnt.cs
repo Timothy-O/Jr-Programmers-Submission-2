@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class QueenAnt : Ant
 {
-    private GameObject[] antChildren;
+    private GameObject[] antChildren;// should be centrallized info, should be a list.
     // Start is called before the first frame update
     void Start()
     {
@@ -20,14 +20,13 @@ public class QueenAnt : Ant
         withResource = false;
         ResourceTracking();
     }
-
     // Update is called once per frame
     void Update()
     {
-        antChildren = GameObject.FindGameObjectsWithTag("Ant");
+        antChildren = GameObject.FindGameObjectsWithTag("Ant");//Shold'nt be called every frame
         if (antChildren.Length < 2)
         {
-            GoGather(activePile);
+            Gather(activePile);
             if (isControlled)
             {
                 ControlledState();
@@ -35,7 +34,7 @@ public class QueenAnt : Ant
         }
         else
         {
-            BackToNest();
+            BackToNest();//This is called every frame, repetition is taken care of by method.
         }
     }
     private void BackToNest()
