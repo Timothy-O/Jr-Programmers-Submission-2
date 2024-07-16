@@ -11,7 +11,7 @@ public class WorkerAnt : Ant
         antView = GetComponent<SphereCollider>();
         basePerimeter = antBase.GetComponent<SphereCollider>();
         antView.radius = range;
-        ResourceTracking();
+        ResourceSelection();
         isSafe = true;
         isIdle = true;
         isAttackType = false;
@@ -22,10 +22,13 @@ public class WorkerAnt : Ant
     // Update is called once per frame
     void Update()
     {
-        Gather(activePile);
         if (isControlled)
         {
             ControlledState();
+        }
+        else
+        {
+            Gather(activePile);
         }
     }
 }

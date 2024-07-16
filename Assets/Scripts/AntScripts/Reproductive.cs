@@ -10,7 +10,7 @@ public class Reproductive : Ant
         antView = GetComponent<SphereCollider>();
         basePerimeter = antBase.GetComponent<SphereCollider>();
         antView.radius = range;
-        ResourceTracking();
+        ResourceSelection();
         isSafe = true;
         isIdle = true;
         isAttackType = false;

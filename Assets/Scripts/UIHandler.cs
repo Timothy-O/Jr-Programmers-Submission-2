@@ -11,7 +11,12 @@ public class UIHandler : MonoBehaviour
     private int resourceNumber;
     private int enemyNumber;
     private int unitNumber;
+    private GameManager gameManager;
 
+    private void Awake()
+    {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -21,9 +26,9 @@ public class UIHandler : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        resourceNumber = GameObject.FindGameObjectsWithTag("Resource").Length;
-        unitNumber = GameObject.FindGameObjectsWithTag("Ant").Length;
-        enemyNumber = GameObject.FindGameObjectsWithTag("Enemy").Length;
+        resourceNumber = gameManager.resources.Count;
+        unitNumber = gameManager.ants.Count;
+        enemyNumber = gameManager.enemies.Count;
         resourceCount.text = "Resource Count:" + resourceNumber;
         unitCount.text = "Unit Count:" + unitNumber;
         enemyCount.text = "Enemy Count:" + enemyNumber;

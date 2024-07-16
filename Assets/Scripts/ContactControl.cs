@@ -9,7 +9,9 @@ public class ContactControl : MonoBehaviour
     public float damage;
     //damage the entity causes
     public float resource;
-    //resource variable will only be applicable to enemies, entity is the parent game object;
+    //resource variable will only be applicable to enemies
+    public float carryCapacity;
+    //amount of resources that can be carried
     private GameObject entity;
     //the ant or enemy parent object
 
@@ -29,7 +31,7 @@ public class ContactControl : MonoBehaviour
     
     // Decides what happens during contact;
     private void OnCollisionEnter(Collision collision)
-    {//why couldnt you use triggerenter instead
+    {
         if (gameObject.tag == "Enemy")
         {
             if (collision.gameObject.tag == "Ant")
@@ -62,14 +64,14 @@ public class ContactControl : MonoBehaviour
             }
             else if (collision.gameObject.name == "Base" && GetComponentInParent<Ant>().isSafe && GetComponentInParent<Ant>().isGathering)
             {
-                if (GetComponentInParent<Ant>().resourceObject.Length == 0)
+                if (GetComponentInParent<Ant>().gameManager.resources.Count == 0)
                 {
-                    GetComponentInParent<Ant>().Idle();
                     GetComponentInParent<Ant>().isGathering = false;
                 }
-                GetComponentInParent<Ant>().ResourceTracking();//should be corrected soon
+                GetComponentInParent<Ant>().ResourceSelection();
                 GetComponentInParent<Ant>().isIdle = true;
                 GetComponentInParent<Ant>().withResource = false;
+                GetComponentInParent<Ant>().isGathering = false;
             }
         }
     }
