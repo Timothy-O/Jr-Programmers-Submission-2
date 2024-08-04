@@ -82,10 +82,9 @@ public class Enemy : MonoBehaviour
     //Adds enemy to gamemanager enemies list when instantiated
     private void OnEnable()
     {//still needs corection as it duplicates objects
-        if (gameManager.enemies.Contains(transform.GetChild(0).gameObject))
+        if (!gameManager.enemies.Contains(transform.GetChild(0).gameObject))
         {
-            Debug.Log(true);
-            //gameManager.enemies.Add(gameObject.transform.GetChild(0).gameObject);
+            gameManager.enemies.Add(gameObject.transform.GetChild(0).gameObject);
         }
     }
 

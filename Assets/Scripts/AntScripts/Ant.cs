@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Ant : MonoBehaviour
 {
+    private float clickInterval;
+    //time allowed between clicks
     public float speed;
     //speed is the objects speend during translation;
     public int range;
@@ -50,6 +52,7 @@ public class Ant : MonoBehaviour
         antView = GetComponent<SphereCollider>();
         antView.radius = range;
         ResourceSelection();
+        clickInterval = 1;
         isSafe = true;
         isIdle = true;
         isAttackType = false;
@@ -99,14 +102,18 @@ public class Ant : MonoBehaviour
     //Checks when object is clicked to be controlled
     private void OnMouseDown()
     {
-        if (isControlled)
+        if (gameManager.controlledUnit == null)
         {
-            isControlled=false;
+            gameManager.controlledUnit = gameObject;
         }
         else
         {
-            isControlled = true;
+            gameManager.controlledUnit.GetComponent<Ant>().isControlled = false;
+            gameManager.controlledUnit.gameObject.transform.GetChild(1).gameObject.SetActive(false);
+            gameManager.controlledUnit = gameObject;
         }
+        isControlled = true;
+        gameObject.transform.GetChild(1).gameObject.SetActive(true);
     }
     //runs when object is about to be destroyed
     private void OnDestroy()
@@ -115,17 +122,17 @@ public class Ant : MonoBehaviour
     }
     //Adds ant to gamemanager ants list when instantiated
     private void OnEnable()
-    {//still needs corection as it duplicates objects
-        if (gameManager.ants.Contains(transform.GetChild(0).gameObject))
+    {
+        if (!gameManager.ants.Contains(transform.GetChild(0).gameObject))
         {
-            Debug.Log(true);
-            //gameManager.ants.Add(gameObject.transform.GetChild(0).gameObject);
+            gameManager.ants.Add(gameObject.transform.GetChild(0).gameObject);
         }
     }
 
     //determines what action to take when ant is controlled and gets mouse's info when clicked
     public void ControlledState()
     {
+        clickInterval -= Time.deltaTime;
         if (Input.GetMouseButtonDown(1))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -144,6 +151,12 @@ public class Ant : MonoBehaviour
                 StartCoroutine(ControlledMovement(mousePos));
             }
         }
+        else if (Input.GetMouseButtonDown(0) && clickInterval<0)
+        {
+            isControlled = false;
+            gameObject.transform.GetChild(1).gameObject.SetActive(false);
+            clickInterval = 1;
+        }
     }
     //moves ant to clickposition when called
     IEnumerator ControlledMovement(Vector3 clickPosition)
@@ -154,6 +167,7 @@ public class Ant : MonoBehaviour
             yield return null;
         }
         isControlled = false;
+        gameObject.transform.GetChild(1).gameObject.SetActive(false);
         yield return null;
     }
     //attcks the selected enemy when called, only works for soldiers
@@ -165,6 +179,7 @@ public class Ant : MonoBehaviour
             yield return null;
         }
         isControlled = false;
+        gameObject.transform.GetChild(1).gameObject.SetActive(false);
         yield return null;
     }
     // goes to gather selected resource pile when called, only works for workers
@@ -176,6 +191,7 @@ public class Ant : MonoBehaviour
             yield return null;
         }
         isControlled = false;
+        gameObject.transform.GetChild(1).gameObject.SetActive(false);
         ResourceSelection();
         isGathering = false;
         yield return null;
@@ -260,7 +276,6 @@ public class Ant : MonoBehaviour
         }
     }
 
-
     //should run when ant is idle
     public virtual void Idle()
     {
@@ -292,8 +307,11 @@ public class Ant : MonoBehaviour
     {
         for (int i = 0; i < gameManager.enemies.Count; i++)
         {
-            gameManager.enemies[i].GetComponentInParent<Enemy>().isAttacking = false;
-            gameManager.enemies[i].GetComponentInParent<Enemy>().RandomPos();
+            if (gameManager.enemies[i] != null)
+            {
+                gameManager.enemies[i].GetComponentInParent<Enemy>().isAttacking = false;
+                gameManager.enemies[i].GetComponentInParent<Enemy>().RandomPos();
+            }
         }
         gameManager.ants.Remove(transform.GetChild(0).gameObject);
     }

@@ -20,8 +20,19 @@ public class Resource : MonoBehaviour
     {
         
     }
+    private void OnEnable()
+    {
+        if (!gameManager.resources.Contains(gameObject))
+        {
+            gameManager.resources.Add(gameObject);
+        }
+    }
     private void OnDestroy()
     {
         gameManager.resources.Remove(gameObject);
+    }
+    private void RandomResourceSpawn()
+    {
+        Instantiate(gameObject, transform);
     }
 }

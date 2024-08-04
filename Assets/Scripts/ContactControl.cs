@@ -14,7 +14,12 @@ public class ContactControl : MonoBehaviour
     //amount of resources that can be carried
     private GameObject entity;
     //the ant or enemy parent object
+    private GameManager gameManager;
 
+    private void Awake()
+    {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
     //Assigns values that require assigning
     void Start()
     {
@@ -64,6 +69,7 @@ public class ContactControl : MonoBehaviour
             }
             else if (collision.gameObject.name == "Base" && GetComponentInParent<Ant>().isSafe && GetComponentInParent<Ant>().isGathering)
             {
+                gameManager.reourcesCollected++;
                 if (GetComponentInParent<Ant>().gameManager.resources.Count == 0)
                 {
                     GetComponentInParent<Ant>().isGathering = false;
